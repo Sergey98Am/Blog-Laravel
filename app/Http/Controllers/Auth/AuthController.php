@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use JWTAuth;
@@ -35,6 +36,32 @@ class AuthController extends Controller
                 'ttl' => JWTAuth::factory()->getTTL(),
             ], 200);
 
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function login(LoginRequest $request)
+    {
+        try {
+            $credentials = $request->only('email', 'password');
+
+            $token = JWTAuth::attempt($credentials);
+
+            if (!$token) {
+                throw new \Exception('Unauthorized');
+            }
+
+            if ($request->remember_me) {
+                $token = auth()->setTTL(86400 * 30)->attempt($credentials);
+            }
+
+            return response()->json([
+                'token' => $token,
+                'user' => User::find(JWTAuth::user()->id)
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
