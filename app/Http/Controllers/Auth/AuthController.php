@@ -11,6 +11,18 @@ use JWTAuth;
 
 class AuthController extends Controller
 {
+    public function checkToken() {
+        try {
+            return response()->json([
+                'success' => true,
+            ], 200);
+        } catch(\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
     public function register(RegisterRequest $request)
     {
         try {
@@ -26,7 +38,7 @@ class AuthController extends Controller
                 throw new \Exception('Something went wrong');
             }
 
-            if ($request->rememberMe) {
+            if ($request->remember_me) {
                 $token = auth()->setTTL(86400 * 30)->fromUser($user);
             }
 
@@ -48,17 +60,19 @@ class AuthController extends Controller
         try {
             $credentials = $request->only('email', 'password');
 
-            $token = JWTAuth::attempt($credentials);
+            if ($request->remember_me) {
+                $token = auth()->setTTL(86400 * 30)->attempt($credentials);
+            } else {
+                $token = JWTAuth::attempt($credentials);
+            }
 
             if (!$token) {
                 throw new \Exception('Unauthorized');
             }
 
-            if ($request->remember_me) {
-                $token = auth()->setTTL(86400 * 30)->attempt($credentials);
-            }
-
             return response()->json([
+                'rmd' => $request->remember_me,
+                'rm' => auth()->factory()->getTTL(),
                 'token' => $token,
                 'user' => User::find(JWTAuth::user()->id)
             ], 200);
