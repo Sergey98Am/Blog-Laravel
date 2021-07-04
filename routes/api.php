@@ -10,4 +10,5 @@ Route::group([
 });
 
 Route::middleware('jwt')->group(function () {
+    Route::get('logout', 'Auth\AuthController@logout');
 });
