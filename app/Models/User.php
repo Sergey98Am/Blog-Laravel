@@ -22,8 +22,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'name',
         'email',
         'password',
-        'email_verified_at',
-        'role_id'
+        'email_verified_at'
     ];
 
     protected $appends = ['name_initials'];
@@ -74,15 +73,5 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getJWTCustomClaims()
     {
         return [];
-    }
-
-    public function sendPasswordResetNotification($token)
-    {
-        $this->notify(new PasswordResetNotification($token));
-    }
-
-    public function sendEmailVerificationNotification()
-    {
-        $this->notify(new VerifyNotification());
     }
 }
