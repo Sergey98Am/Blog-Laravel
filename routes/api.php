@@ -18,4 +18,5 @@ Route::middleware('jwt')->group(function () {
     Route::resource('permissions', 'Admin\UserManagement\PermissionController');
     Route::resource('roles', 'Admin\UserManagement\RoleController');
     Route::resource('users', 'Admin\UserManagement\UserController');
+    Route::get('abilities', 'Admin\UserManagement\RoleController@abilities');
 });

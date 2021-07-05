@@ -20,11 +20,11 @@ class RoleController extends Controller
     public function index()
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('role_access')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('role_access')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $roles = Role::with('permissions')->orderBy('id', 'DESC')->get();
             $permissions = Permission::all();
@@ -36,7 +36,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -49,11 +49,11 @@ class RoleController extends Controller
     public function store(CreateRoleRequest $request)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('role_create')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('role_create')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $role = Role::create([
                 'title' => $request->title,
@@ -72,7 +72,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -86,11 +86,11 @@ class RoleController extends Controller
     public function update(UpdateRoleRequest $request, $roleId)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('role_edit')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('role_edit')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $role = Role::find($roleId);
 
@@ -111,7 +111,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -124,11 +124,11 @@ class RoleController extends Controller
     public function destroy($roleId)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('role_delete')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('role_delete')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $role = Role::find($roleId);
 
@@ -145,22 +145,22 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
-//    public function abilities()
-//    {
-//        try {
-//            $permissions = JWTAuth::user()->role()->with('permissions')->get()->pluck('permissions')->flatten()->pluck('title')->toArray();
-//
-//            return response()->json([
-//                'permissions' => $permissions,
-//            ], 200);
-//        } catch (\Exception $e) {
-//            return response()->json([
-//                'message' => $e->getMessage(),
-//            ], 400);
-//        }
-//    }
+    public function abilities()
+    {
+        try {
+            $permissions = JWTAuth::user()->role()->with('permissions')->get()->pluck('permissions')->flatten()->pluck('title')->toArray();
+
+            return response()->json([
+                'permissions' => $permissions,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
 }

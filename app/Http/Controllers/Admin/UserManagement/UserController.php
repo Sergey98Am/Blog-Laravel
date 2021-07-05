@@ -9,7 +9,6 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 
 class UserController extends Controller
 {
@@ -21,11 +20,11 @@ class UserController extends Controller
     public function index()
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('user_access')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('user_access')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $users = User::with('role')->orderBy('id', 'DESC')->get();
             $roles = Role::all();
@@ -37,7 +36,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -50,11 +49,11 @@ class UserController extends Controller
     public function store(CreateUserRequest $request)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('user_create')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('user_create')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $user = User::create([
                 'name' => $request->name,
@@ -74,7 +73,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -88,11 +87,11 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, $userId)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('user_edit')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('user_edit')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $user = User::find($userId);
 
@@ -112,7 +111,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -125,11 +124,11 @@ class UserController extends Controller
     public function destroy($userId)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('user_delete')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('user_delete')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $user = User::find($userId);
 
@@ -146,7 +145,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 }
