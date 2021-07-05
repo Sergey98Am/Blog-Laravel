@@ -19,11 +19,11 @@ class PermissionController extends Controller
     public function index()
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('permission_access')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('permission_access')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $permissions = Permission::orderBy('id', 'DESC')->get();
 
@@ -33,7 +33,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -46,11 +46,11 @@ class PermissionController extends Controller
     public function store(CreatePermissionRequest $request)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('permission_create')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('permission_create')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $permission = Permission::create([
                 'title' => $request->title,
@@ -67,7 +67,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -81,11 +81,11 @@ class PermissionController extends Controller
     public function update(UpdatePermissionRequest $request, $permissionId)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('permission_edit')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('permission_edit')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $permission = Permission::find($permissionId);
 
@@ -104,7 +104,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
@@ -117,11 +117,11 @@ class PermissionController extends Controller
     public function destroy($permissionId)
     {
         try {
-//            $error_status_code = 400;
-//            if (Gate::denies('permission_delete')) {
-//                $error_status_code = 403;
-//                throw new \Exception('Forbidden 403');
-//            }
+            $error_status_code = 400;
+            if (Gate::denies('permission_delete')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
             $permission = Permission::find($permissionId);
 
@@ -138,7 +138,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 }
