@@ -14,6 +14,7 @@ Route::middleware('jwt')->group(function () {
     Route::get('logout', 'Auth\AuthController@logout');
     Route::post('/change-details', 'UserController@changeDetails');
     Route::resource('posts', 'PostController');
+    Route::get('all-posts', 'PostController@allPosts');
 
     // Admin
     Route::resource('permissions', 'Admin\UserManagement\PermissionController');
