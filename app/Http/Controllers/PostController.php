@@ -67,17 +67,6 @@ class PostController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param \Illuminate\Http\Request $request
@@ -139,6 +128,21 @@ class PostController extends Controller
             } else {
                 throw new \Exception('Post does not exist');
             }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function allPosts()
+    {
+        try {
+            $posts = Post::with('user:id,name')->orderBy('id', 'DESC')->get();
+
+            return response()->json([
+                'posts' => $posts
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
