@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\JWT;
+use App\Http\Requests\CreatePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use JWTAuth;
 
 class PostController extends Controller
@@ -34,7 +38,7 @@ class PostController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(CreatePostRequest $request)
     {
         try {
             if ($request->has('image')) {
@@ -73,7 +77,7 @@ class PostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePostRequest $request, $id)
     {
         try {
             $updatedPost = Post::find($id);
@@ -90,6 +94,7 @@ class PostController extends Controller
                 $updatedPost->update([
                     'title' => $request->title,
                     'description' => $request->description,
+                    'checked' => false,
                 ]);
 
                 return response()->json([
@@ -138,11 +143,75 @@ class PostController extends Controller
     public function allPosts()
     {
         try {
+            $posts = Post::with('user:id,name')->orderBy('id', 'DESC')->where('checked', true)->get();
+
+            return response()->json([
+                'posts' => $posts
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function adminAllPosts()
+    {
+        try {
             $posts = Post::with('user:id,name')->orderBy('id', 'DESC')->get();
 
             return response()->json([
                 'posts' => $posts
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function checkPost(Request $request, $id)
+    {
+        try {
+            $post = Post::find($id);
+
+            if ($post) {
+                $post->update([
+                    'checked' => $request->checked ? 1 : 0,
+                ]);
+
+                return response()->json([
+                    'post' => $post,
+                    'message' => 'Post checked'
+                ], 200);
+            } else {
+                throw new \Exception('Post does not exist');
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function adminUpdate(UpdatePostRequest $request, $id)
+    {
+        try {
+            $updatedPost = Post::find($id);
+
+            if ($updatedPost) {
+                $updatedPost->update([
+                    'title' => $request->title,
+                    'description' => $request->description,
+                ]);
+
+                return response()->json([
+                    'updatedPost' => $updatedPost,
+                    'message' => 'Post successfully updated'
+                ], 200);
+            } else {
+                throw new \Exception('Post does not exist');
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
