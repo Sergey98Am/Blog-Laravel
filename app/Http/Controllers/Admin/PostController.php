@@ -58,6 +58,7 @@ class PostController extends Controller
                 $updatedPost->update([
                     'title' => $request->title,
                     'description' => $request->description,
+                    'edited' => true,
                 ]);
 
                 return response()->json([

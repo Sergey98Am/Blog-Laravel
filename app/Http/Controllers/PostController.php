@@ -93,6 +93,7 @@ class PostController extends Controller
                     'title' => $request->title,
                     'description' => $request->description,
                     'checked' => false,
+                    'edited' => true,
                 ]);
 
                 return response()->json([
