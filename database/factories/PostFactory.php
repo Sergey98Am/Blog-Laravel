@@ -9,7 +9,7 @@ use App\Models\User;
 
 $factory->define(Post::class, function (Faker $faker) {
     return [
-        'image' => 'post.png',
+        'image' => 'post-' . $faker->unique()->numberBetween(1,10) . '.png',
         'title' => $faker->word,
         'description' => $faker->text,
         'checked' => $faker->boolean,

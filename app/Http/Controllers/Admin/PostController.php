@@ -55,6 +55,14 @@ class PostController extends Controller
             $updatedPost = Post::find($id);
 
             if ($updatedPost) {
+                if ($request->hasFile('image')) {
+                    \File::delete(public_path() . '/images/' . $updatedPost->image);
+                    $file = $request->file('image');
+                    $file_name = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path() . '/images/', $file_name);
+                    $updatedPost->image = $file_name;
+                }
+
                 $updatedPost->update([
                     'title' => $request->title,
                     'description' => $request->description,
