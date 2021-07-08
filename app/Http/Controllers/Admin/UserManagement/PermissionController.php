@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin\UserManagement;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreatePermissionRequest;
-use App\Http\Requests\UpdatePermissionRequest;
+use App\Http\Requests\Admin\UserManagement\CreatePermissionRequest;
+use App\Http\Requests\Admin\UserManagement\UpdatePermissionRequest;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Gate;
 use JWTAuth;
