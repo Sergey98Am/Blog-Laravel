@@ -16,12 +16,14 @@ Route::middleware('jwt')->group(function () {
     Route::get('logout', 'Auth\AuthController@logout');
     Route::post('/change-details', 'UserController@changeDetails');
     Route::resource('posts', 'PostController');
-    // Admin
-    Route::resource('permissions', 'Admin\UserManagement\PermissionController');
-    Route::resource('roles', 'Admin\UserManagement\RoleController');
-    Route::resource('users', 'Admin\UserManagement\UserController');
-    Route::get('abilities', 'Admin\UserManagement\RoleController@abilities');
-    Route::get('admin/posts', 'PostController@adminAllPosts');
-    Route::put('admin/check-post/{id}', 'PostController@checkPost');
-    Route::put('admin/posts/{id}', 'PostController@adminUpdate');
+
+    Route::group(['prefix' => 'admin', 'namespace' => 'Admin'],function (){
+        Route::resource('permissions', 'UserManagement\PermissionController');
+        Route::resource('roles', 'UserManagement\RoleController');
+        Route::resource('users', 'UserManagement\UserController');
+        Route::get('abilities', 'UserManagement\RoleController@abilities');
+        Route::resource('posts', 'PostController');
+        Route::put('check-post/{id}', 'PostController@checkPost');
+    });
+
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin\UserManagement;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -14,8 +14,7 @@ class UpdatePermissionRequest extends FormRequest
      */
     public function authorize()
     {
-//        return Gate::allows('permission_edit');
-        return true;
+        return Gate::allows('permission_edit');
     }
 
     /**

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\CreatePostRequest;
-use App\Http\Requests\UpdatePostRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdatePostRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
-use JWTAuth;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -18,7 +18,13 @@ class PostController extends Controller
     public function index()
     {
         try {
-            $posts = Post::orderBy('id', 'DESC')->where('user_id', JWTAuth::user()->id)->get();
+            $error_status_code = 400;
+            if (Gate::denies('post_access')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
+
+            $posts = Post::with('user:id,name')->orderBy('id', 'DESC')->get();
 
             return response()->json([
                 'posts' => $posts
@@ -26,73 +32,32 @@ class PostController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
-        }
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function store(CreatePostRequest $request)
-    {
-        try {
-            if ($request->has('image')) {
-                $file = $request->file('image');
-                $file_name = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path() . '/images/', $file_name);
-            }
-
-
-            $post = Post::create([
-                'image' => $file_name,
-                'title' => $request->title,
-                'description' => $request->description,
-                'user_id' => JWTAuth::user()->id
-            ]);
-
-            if (!$post) {
-                throw new \Exception('Something went wrong');
-            }
-
-            return response()->json([
-                'createdPost' => $post,
-                'message' => 'Post successfully created'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdatePostRequest $request, $id)
     {
         try {
+            $error_status_code = 400;
+            if (Gate::denies('post_edit')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
+
             $updatedPost = Post::find($id);
 
             if ($updatedPost) {
-                if ($request->hasFile('image')) {
-                    \File::delete(public_path() . '/images/' . $updatedPost->image);
-                    $file = $request->file('image');
-                    $file_name = time() . '_' . $file->getClientOriginalName();
-                    $file->move(public_path() . '/images/', $file_name);
-                    $updatedPost->image = $file_name;
-                }
-
                 $updatedPost->update([
                     'title' => $request->title,
                     'description' => $request->description,
-                    'checked' => false,
                 ]);
 
                 return response()->json([
@@ -105,19 +70,25 @@ class PostController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
         try {
+            $error_status_code = 400;
+            if (Gate::denies('post_delete')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
+
             $deletedPost = Post::find($id);
 
             if ($deletedPost) {
@@ -134,22 +105,37 @@ class PostController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 
-    public function allPosts()
+    public function checkPost(Request $request, $id)
     {
         try {
-            $posts = Post::with('user:id,name')->orderBy('id', 'DESC')->where('checked', true)->get();
+            $error_status_code = 400;
+            if (Gate::denies('post_check')) {
+                $error_status_code = 403;
+                throw new \Exception('Forbidden 403');
+            }
 
-            return response()->json([
-                'posts' => $posts
-            ], 200);
+            $post = Post::find($id);
+
+            if ($post) {
+                $post->update([
+                    'checked' => $request->checked ? 1 : 0,
+                ]);
+
+                return response()->json([
+                    'post' => $post,
+                    'message' => 'Post checked'
+                ], 200);
+            } else {
+                throw new \Exception('Post does not exist');
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 400);
+            ], $error_status_code);
         }
     }
 }
