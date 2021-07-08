@@ -81,6 +81,14 @@ class  PermissionRoleSeeder extends Seeder
                 'permission_id' => 17,
                 'role_id' => 2,
             ],
+            [
+                'permission_id' => 18,
+                'role_id' => 2,
+            ],
+            [
+                'permission_id' => 19,
+                'role_id' => 2,
+            ],
         ];
 
         PermissionRole::insert($permissionRoles);

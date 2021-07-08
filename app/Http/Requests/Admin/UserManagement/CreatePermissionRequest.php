@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin\UserManagement;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
-class UpdateRoleRequest extends FormRequest
+class CreatePermissionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,9 +14,7 @@ class UpdateRoleRequest extends FormRequest
      */
     public function authorize()
     {
-//        return Gate::allows('role_edit');
-        return true;
-
+        return Gate::allows('permission_create');
     }
 
     /**
@@ -28,8 +26,6 @@ class UpdateRoleRequest extends FormRequest
     {
         return [
             'title' => 'required',
-            'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id',
         ];
     }
 }
