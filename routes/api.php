@@ -16,6 +16,7 @@ Route::middleware('jwt')->group(function () {
     Route::get('logout', 'Auth\AuthController@logout');
     Route::post('/change-details', 'UserController@changeDetails');
     Route::resource('posts', 'PostController');
+    Route::post('save-like/post/{id}', 'PostController@saveLike');
 
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin'],function (){
         Route::resource('permissions', 'UserManagement\PermissionController');
