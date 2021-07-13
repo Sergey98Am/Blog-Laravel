@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Models\Like;
 use App\Models\Post;
-use Illuminate\Http\Request;
 use JWTAuth;
 
 class PostController extends Controller
@@ -142,10 +142,40 @@ class PostController extends Controller
     public function allPosts()
     {
         try {
-            $posts = Post::with('user:id,name')->orderBy('id', 'DESC')->where('checked', true)->get();
+            $posts = Post::with([
+                'user:id,name',
+                'likes',
+            ])->orderBy('id', 'DESC')->where('checked', true)->get();
 
             return response()->json([
                 'posts' => $posts
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function saveLike($postId)
+    {
+        try {
+            $like = Like::where(['post_id' => $postId, 'user_id' => JWTAuth::user()->id])->first();
+
+            if ($like) {
+                Like::where(['post_id' => $postId, 'user_id' => JWTAuth::user()->id])->delete();
+                $deleted = 1;
+            } else {
+                $like = Like::create([
+                    'post_id' => $postId,
+                    'user_id' => JWTAuth::user()->id
+                ]);
+                $deleted = 0;
+            }
+
+            return response()->json([
+                'deleted' => $deleted,
+                'like' => $like
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

@@ -21,7 +21,8 @@
         "league/oauth2-facebook": "^2.0",
         "nesbot/carbon": "^2.45",
         "shiftonelabs/laravel-cascade-deletes": "^1.0",
-        "tymon/jwt-auth": "^1.0.0-rc.2"
+        "tymon/jwt-auth": "^1.0.0-rc.2",
+      "ext-json": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
