@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Notifications\PasswordResetNotification;
-use App\Notifications\VerifyNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -26,8 +24,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'role_id'
     ];
 
-    protected $appends = ['name_initials'];
-
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -45,16 +41,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    public function getNameInitialsAttribute()
-    {
-        $words = explode(" ", $this->name);
-        $initials = null;
-        foreach ($words as $w) {
-            $initials .= $w[0];
-        }
-        return strtoupper($initials);
-    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -78,16 +64,16 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
     public function role()
     {
-        return $this->belongsTo('App\Models\Role');
+        return $this->belongsTo(Role::class);
     }
 
     public function posts()
     {
-        return $this->hasMany('App\Models\Post');
+        return $this->hasMany(Post::class);
     }
 
     public function likes()
     {
-        return $this->hasMany('App\Models\Like');
+        return $this->hasMany(Like::class);
     }
 }

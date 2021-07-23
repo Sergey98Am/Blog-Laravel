@@ -4,12 +4,17 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use JWTAuth;
+use Illuminate\Support\Facades\Auth;
 
 class Post extends Model
 {
     protected $fillable = [
-        'image', 'title', 'description', 'checked', 'edited', 'user_id'
+        'image',
+        'title',
+        'description',
+        'checked',
+        'edited',
+        'user_id'
     ];
 
     protected $dates = ['created_at', 'updated_at'];
@@ -28,10 +33,15 @@ class Post extends Model
         return $this->belongsTo('App\Models\User');
     }
 
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
     public function getLikedByAuthUserAttribute()
     {
-        if (JWTAuth::user()) {
-            $like = $this->likes()->where('user_id', JWTAuth::user()->id)->first();
+        if ($user = Auth::user()) {
+            $like = $this->likes()->where('user_id', $user->id)->first();
 
             if ($like) {
                 return true;
@@ -39,10 +49,5 @@ class Post extends Model
 
             return false;
         }
-    }
-
-    public function likes()
-    {
-        return $this->hasMany('App\Models\Like');
     }
 }
