@@ -16,15 +16,14 @@ Route::middleware('jwt')->group(function () {
     Route::get('logout', 'Auth\AuthController@logout');
     Route::post('/change-details', 'UserController@changeDetails');
     Route::resource('posts', 'PostController');
-    Route::post('save-like/post/{id}', 'PostController@saveLike');
+    Route::post('save-like/post/{postId}', 'PostController@saveLike');
 
-    Route::group(['prefix' => 'admin', 'namespace' => 'Admin'],function (){
+    Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('permissions', 'UserManagement\PermissionController');
         Route::resource('roles', 'UserManagement\RoleController');
         Route::resource('users', 'UserManagement\UserController');
         Route::get('abilities', 'UserManagement\RoleController@abilities');
         Route::resource('posts', 'PostController');
-        Route::put('check-post/{id}', 'PostController@checkPost');
+        Route::put('check-post/{postId}', 'PostController@checkPost');
     });
-
 });

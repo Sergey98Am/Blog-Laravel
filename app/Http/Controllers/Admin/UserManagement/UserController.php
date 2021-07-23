@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Admin\UserManagement;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserManagement\CreateUserRequest;
 use App\Http\Requests\Admin\UserManagement\UpdateUserRequest;
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
+use App\Repositories\Admin\UserManagement\Users\UserRepository;
 
 class UserController extends Controller
 {
+    private $repository;
+
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->repository = $userRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -20,23 +24,13 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('user_access')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
+            $usersAndRoles = $this->repository->getUsers();
 
-            $users = User::with('role')->orderBy('id', 'DESC')->get();
-            $roles = Role::all();
-
-            return response()->json([
-                'users' => $users,
-                'roles' => $roles,
-            ], 200);
+            return response()->json($usersAndRoles, 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -49,22 +43,7 @@ class UserController extends Controller
     public function store(CreateUserRequest $request)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('user_create')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role_id' => $request->role_id,
-            ]);
-
-            if (!$user) {
-                throw new \Exception('Something went wrong');
-            }
+            $user = $this->repository->createUser($request);
 
             return response()->json([
                 'user' => $user->load('role'),
@@ -73,7 +52,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -84,25 +63,10 @@ class UserController extends Controller
      * @param $userId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateUserRequest $request, $userId)
+    public function update(UpdateUserRequest $request, int $userId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('user_edit')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $user = User::find($userId);
-
-            if (!$user) {
-                throw new \Exception('User does not exist');
-            }
-
-            $user->update([
-                'name' => $request->name,
-                'role_id' => $request->role_id,
-            ]);
+            $user = $this->repository->updateUser($request, $userId);
 
             return response()->json([
                 'user' => $user->load('role'),
@@ -111,7 +75,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -121,22 +85,10 @@ class UserController extends Controller
      * @param $userId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($userId)
+    public function destroy(int $userId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('user_delete')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $user = User::find($userId);
-
-            if (!$user) {
-                throw new \Exception('User does not exist');
-            }
-
-            $user->delete();
+            $user = $this->repository->deleteUser($userId);
 
             return response()->json([
                 'user' => $user,
@@ -145,7 +97,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 }

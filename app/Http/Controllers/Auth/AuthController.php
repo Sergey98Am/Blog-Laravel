@@ -3,51 +3,32 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use JWTAuth;
+use App\Http\Requests\RegisterRequest;
+use App\Repositories\Auth\AuthRepositoryInterface;
 
 class AuthController extends Controller
 {
-    public function checkToken() {
-        try {
-            return response()->json([
-                'success' => true,
-            ], 200);
-        } catch(\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 400);
-        }
+    private $repository;
+
+    public function __construct(AuthRepositoryInterface $authRepository)
+    {
+        $this->repository = $authRepository;
+    }
+
+    public function checkToken()
+    {
+        return response()->json([
+            'success' => true,
+        ], 200);
     }
 
     public function register(RegisterRequest $request)
     {
         try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+            $userAndToken = $this->repository->register($request);
 
-            $token = JWTAuth::fromUser($user);
-
-            if (!$user) {
-                throw new \Exception('Something went wrong');
-            }
-
-            if ($request->remember_me) {
-                $token = auth()->setTTL(86400 * 30)->fromUser($user);
-            }
-
-            return response()->json([
-                'token' => $token,
-                'user' => User::find($user->id),
-                'ttl' => JWTAuth::factory()->getTTL(),
-            ], 200);
-
+            return response()->json($userAndToken, 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -58,24 +39,9 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         try {
-            $credentials = $request->only('email', 'password');
+            $userAndToken = $this->repository->login($request);
 
-            if ($request->remember_me) {
-                $token = auth()->setTTL(86400 * 30)->attempt($credentials);
-            } else {
-                $token = JWTAuth::attempt($credentials);
-            }
-
-            if (!$token) {
-                throw new \Exception('Unauthorized');
-            }
-
-            return response()->json([
-                'rmd' => $request->remember_me,
-                'rm' => auth()->factory()->getTTL(),
-                'token' => $token,
-                'user' => User::find(JWTAuth::user()->id)
-            ], 200);
+            return response()->json($userAndToken, 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -86,12 +52,12 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            JWTAuth::invalidate();
+            $this->repository->logout();
 
             return response()->json([
                 'message' => 'Successfully logged out'
             ], 200);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
             ], 400);

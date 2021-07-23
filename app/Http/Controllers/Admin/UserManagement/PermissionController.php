@@ -5,12 +5,17 @@ namespace App\Http\Controllers\Admin\UserManagement;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserManagement\CreatePermissionRequest;
 use App\Http\Requests\Admin\UserManagement\UpdatePermissionRequest;
-use App\Models\Permission;
-use Illuminate\Support\Facades\Gate;
-use JWTAuth;
+use App\Repositories\Admin\UserManagement\Permissions\PermissionRepository;
 
 class PermissionController extends Controller
 {
+    private $repository;
+
+    public function __construct(PermissionRepository $permissionRepository)
+    {
+        $this->repository = $permissionRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -19,13 +24,7 @@ class PermissionController extends Controller
     public function index()
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('permission_access')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $permissions = Permission::orderBy('id', 'DESC')->get();
+            $permissions = $this->repository->getPermissions();
 
             return response()->json([
                 'permissions' => $permissions
@@ -33,7 +32,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -46,19 +45,7 @@ class PermissionController extends Controller
     public function store(CreatePermissionRequest $request)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('permission_create')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $permission = Permission::create([
-                'title' => $request->title,
-            ]);
-
-            if (!$permission) {
-                throw new \Exception('Something went wrong');
-            }
+            $permission = $this->repository->createPermission($request);
 
             return response()->json([
                 'permission' => $permission,
@@ -67,7 +54,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -78,24 +65,10 @@ class PermissionController extends Controller
      * @param $permissionId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdatePermissionRequest $request, $permissionId)
+    public function update(UpdatePermissionRequest $request, int $permissionId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('permission_edit')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $permission = Permission::find($permissionId);
-
-            if (!$permission) {
-                throw new \Exception('Permission does not exist');
-            }
-
-            $permission->update([
-                'title' => $request->title,
-            ]);
+            $permission = $this->repository->updatePermission($request, $permissionId);
 
             return response()->json([
                 'permission' => $permission,
@@ -104,7 +77,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -114,22 +87,10 @@ class PermissionController extends Controller
      * @param $permissionId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($permissionId)
+    public function destroy(int $permissionId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('permission_delete')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $permission = Permission::find($permissionId);
-
-            if (!$permission) {
-                throw new \Exception('Permission does not exist');
-            }
-
-            $permission->delete();
+            $permission = $this->repository->deletePermission($permissionId);
 
             return response()->json([
                 'permission' => $permission,
@@ -138,7 +99,7 @@ class PermissionController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 }

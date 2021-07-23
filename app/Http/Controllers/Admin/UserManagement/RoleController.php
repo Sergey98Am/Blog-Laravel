@@ -5,13 +5,18 @@ namespace App\Http\Controllers\Admin\UserManagement;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserManagement\CreateRoleRequest;
 use App\Http\Requests\Admin\UserManagement\UpdateRoleRequest;
-use App\Models\Permission;
 use App\Models\Role;
-use Illuminate\Support\Facades\Gate;
-use JWTAuth;
+use App\Repositories\Admin\UserManagement\Roles\RoleRepository;
 
 class RoleController extends Controller
 {
+    private $repository;
+
+    public function __construct(RoleRepository $roleRepository)
+    {
+        $this->repository = $roleRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -20,23 +25,13 @@ class RoleController extends Controller
     public function index()
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('role_access')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
+            $rolesAndPermissions = $this->repository->getRoles();
 
-            $roles = Role::with('permissions')->orderBy('id', 'DESC')->get();
-            $permissions = Permission::all();
-
-            return response()->json([
-                'roles' => $roles,
-                'permissions' => $permissions,
-            ], 200);
+            return response()->json($rolesAndPermissions, 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -49,21 +44,7 @@ class RoleController extends Controller
     public function store(CreateRoleRequest $request)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('role_create')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $role = Role::create([
-                'title' => $request->title,
-            ]);
-
-            $role->permissions()->attach($request->permissions);
-
-            if (!$role) {
-                throw new \Exception('Something went wrong');
-            }
+            $role = $this->repository->createRole($request);
 
             return response()->json([
                 'role' => $role->load('permissions'),
@@ -72,7 +53,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -83,26 +64,10 @@ class RoleController extends Controller
      * @param $roleId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateRoleRequest $request, $roleId)
+    public function update(UpdateRoleRequest $request, int $roleId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('role_edit')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $role = Role::find($roleId);
-
-            if (!$role) {
-                throw new \Exception('Role does not exist');
-            }
-
-            $role->update([
-                'title' => $request->title,
-            ]);
-
-            $role->permissions()->sync($request->permissions);
+            $role = $this->repository->updateRole($request, $roleId);
 
             return response()->json([
                 'role' => $role->load('permissions'),
@@ -111,7 +76,7 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
@@ -121,22 +86,10 @@ class RoleController extends Controller
      * @param $roleId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($roleId)
+    public function destroy(int $roleId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('role_delete')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $role = Role::find($roleId);
-
-            if (!$role) {
-                throw new \Exception('Role does not exist');
-            }
-
-            $role->delete();
+            $role = $this->repository->deleteRole($roleId);
 
             return response()->json([
                 'role' => $role,
@@ -145,14 +98,14 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
     public function abilities()
     {
         try {
-            $permissions = JWTAuth::user()->role()->with('permissions')->get()->pluck('permissions')->flatten()->pluck('title')->toArray();
+            $permissions = $this->repository->abilities();
 
             return response()->json([
                 'permissions' => $permissions,

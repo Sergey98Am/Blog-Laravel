@@ -3,13 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\UpdatePostRequest;
-use App\Models\Post;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\Admin\UpdatePostRequest;
+use App\Repositories\Admin\Posts\AdminPostRepository;
 
 class PostController extends Controller
 {
+    private $repository;
+
+    public function __construct(AdminPostRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,13 +24,7 @@ class PostController extends Controller
     public function index()
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('post_access')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
-
-            $posts = Post::with('user:id,name')->orderBy('id', 'DESC')->get();
+            $posts = $this->repository->posts();
 
             return response()->json([
                 'posts' => $posts
@@ -32,119 +32,68 @@ class PostController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdatePostRequest $request, $id)
+    public function update(UpdatePostRequest $request, int $postId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('post_edit')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
+            $updatedPost = $this->repository->updatePost($request, $postId);
 
-            $updatedPost = Post::find($id);
-
-            if ($updatedPost) {
-                if ($request->hasFile('image')) {
-                    \File::delete(public_path() . '/images/' . $updatedPost->image);
-                    $file = $request->file('image');
-                    $file_name = time() . '_' . $file->getClientOriginalName();
-                    $file->move(public_path() . '/images/', $file_name);
-                    $updatedPost->image = $file_name;
-                }
-
-                $updatedPost->update([
-                    'title' => $request->title,
-                    'description' => $request->description,
-                    'edited' => true,
-                ]);
-
-                return response()->json([
-                    'updatedPost' => $updatedPost,
-                    'message' => 'Post successfully updated'
-                ], 200);
-            } else {
-                throw new \Exception('Post does not exist');
-            }
+            return response()->json([
+                'updatedPost' => $updatedPost,
+                'message' => 'Post successfully updated'
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $postId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('post_delete')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
+            $post = $this->repository->deletePost($postId);
 
-            $deletedPost = Post::find($id);
-
-            if ($deletedPost) {
-                \File::delete(public_path() . '/images/' . $deletedPost->image);
-                $deletedPost->delete();
-                return response()->json([
-                    'deletedPost' => $deletedPost,
-                    'message' => 'Post successfully deleted'
-                ], 200);
-
-            } else {
-                throw new \Exception('Post does not exist');
-            }
+            return response()->json([
+                'deletedPost' => $post,
+                'message' => 'Post successfully deleted'
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 
-    public function checkPost(Request $request, $id)
+    public function checkPost(Request $request, int $postId)
     {
         try {
-            $error_status_code = 400;
-            if (Gate::denies('post_check')) {
-                $error_status_code = 403;
-                throw new \Exception('Forbidden 403');
-            }
+            $post = $this->repository->checkPost($request, $postId);
 
-            $post = Post::find($id);
-
-            if ($post) {
-                $post->update([
-                    'checked' => $request->checked ? 1 : 0,
-                ]);
-
-                return response()->json([
-                    'post' => $post,
-                    'message' => 'Post checked'
-                ], 200);
-            } else {
-                throw new \Exception('Post does not exist');
-            }
+            return response()->json([
+                'checkPost' => $post,
+                'message' => 'Post checked'
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], $error_status_code);
+            ], 400);
         }
     }
 }
