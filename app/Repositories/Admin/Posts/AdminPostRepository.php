@@ -3,6 +3,7 @@
 namespace App\Repositories\Admin\Posts;
 
 use App\Models\Post;
+use App\Notifications\CheckPost;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 
@@ -70,6 +71,8 @@ class AdminPostRepository implements AdminPostRepositoryInterface
             $post->update([
                 'checked' => $request->checked ? 1 : 0,
             ]);
+
+            $post->user->notify(new CheckPost($post->id, $post->title, $post->checked));
 
             return $post;
         }

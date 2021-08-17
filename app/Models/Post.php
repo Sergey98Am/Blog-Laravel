@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 
 class Post extends Model
@@ -16,6 +18,7 @@ class Post extends Model
         'edited',
         'user_id'
     ];
+
 
     protected $dates = ['created_at', 'updated_at'];
 
@@ -49,5 +52,10 @@ class Post extends Model
 
             return false;
         }
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(DatabaseNotification::class)->orderBy('created_at', 'desc');
     }
 }

@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Notification;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\ServiceProvider;
+use App\Channels\DatabaseChannel;
+use Illuminate\Notifications\Channels\DatabaseChannel as IlluminateDatabaseChannel;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $this->app->instance(IlluminateDatabaseChannel::class, new DatabaseChannel);
     }
 }

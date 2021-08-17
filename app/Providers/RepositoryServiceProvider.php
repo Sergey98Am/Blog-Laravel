@@ -10,6 +10,8 @@ use App\Repositories\Admin\UserManagement\Roles\RoleRepository;
 use App\Repositories\Admin\UserManagement\Roles\RoleRepositoryInterface;
 use App\Repositories\Admin\UserManagement\Users\UserRepository;
 use App\Repositories\Admin\UserManagement\Users\UserRepositoryInterface;
+use App\Repositories\Notifications\NotificationRepository;
+use App\Repositories\Notifications\NotificationRepositoryInterface;
 use App\Repositories\Posts\PostRepository;
 use App\Repositories\Posts\PostRepositoryInterface;
 use App\Repositories\Auth\AuthRepositoryInterface;
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AdminPostRepositoryInterface::class, AdminPostRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
     }
 
     /**

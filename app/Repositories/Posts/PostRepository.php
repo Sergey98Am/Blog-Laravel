@@ -112,4 +112,11 @@ class PostRepository implements PostRepositoryInterface
             'like' => $like
         ];
     }
+
+    public function onePost($postId): object
+    {
+        $post = Post::with('notifications')->find($postId);
+
+        return $post;
+    }
 }
