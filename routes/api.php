@@ -16,7 +16,13 @@ Route::middleware('jwt')->group(function () {
     Route::get('logout', 'Auth\AuthController@logout');
     Route::post('/change-details', 'UserController@changeDetails');
     Route::resource('posts', 'PostController');
+    Route::get('post/{postId}', 'PostController@post');
     Route::post('save-like/post/{postId}', 'PostController@saveLike');
+    Route::get('user-notifications', 'NotificationController@userNotifications');
+    Route::get('unread-notifications-count', 'NotificationController@unreadNotificationsCount');
+    Route::get('mark-all-as-read', 'NotificationController@markAllAsRead');
+    Route::get('mark-as-read/{notificationId}', 'NotificationController@markAsRead');
+    Route::post('load-more-notifications', 'NotificationController@loadMoreData');
 
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('permissions', 'UserManagement\PermissionController');

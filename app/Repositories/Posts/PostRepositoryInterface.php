@@ -15,4 +15,6 @@ interface PostRepositoryInterface
     public function allPosts();
 
     public function saveLike($postId);
+
+    public function onePost($postId);
 }

@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Requests\UpdatePostRequest;
-use App\Models\Post;
 use App\Repositories\Posts\PostRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PostController extends Controller
 {
@@ -125,6 +123,19 @@ class PostController extends Controller
             $deletedAndLike = $this->repository->saveLike($postId);
 
             return response()->json($deletedAndLike, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function post($postId)
+    {
+        try {
+            $post = $this->repository->onePost($postId);
+
+            return response()->json($post, 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
