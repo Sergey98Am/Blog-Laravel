@@ -5,14 +5,13 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class CheckPost extends Notification
+class UserCreatePost extends Notification
 {
     use Queueable;
 
+    public $post_user_name;
     public $post_id;
     public $post_title;
-    public $post_checked;
-    public $checked;
     public $url;
 
     /**
@@ -20,19 +19,18 @@ class CheckPost extends Notification
      *
      * @return void
      */
-    public function __construct($post_id, $post_title, $post_checked)
+    public function __construct($post_user_name, $post_id, $post_title)
     {
+        $this->post_user_name = $post_user_name;
         $this->post_id = $post_id;
         $this->post_title = $post_title;
-        $this->post_checked = $post_checked;
-        $this->checked = $post_checked ? 'post-checked' : 'post-not-checked';
-        $this->url = "post_id/$this->post_id?checked=$this->checked";
+        $this->url = "admin/post_id/$this->post_id";
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -43,16 +41,18 @@ class CheckPost extends Notification
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return string[]
+     * @param  mixed  $notifiable
+     * @return array
      */
     public function toArray($notifiable)
     {
         $url = "/notification/notify_id/$this->id/$this->url";
-
         return [
-            "url" => $url,
-            "text" => $this->post_checked ? "Admin approved '$this->post_title' post" : "Admin disapproved '$this->post_title' post",
+            'id' => $this->post_id,
+            'title' => $this->post_title,
+            'url' => $url,
+            "text" => "$this->post_user_name creates new post '$this->post_title'",
+            'for_admin' => 1,
         ];
     }
 }
