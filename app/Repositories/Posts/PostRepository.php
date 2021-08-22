@@ -4,8 +4,11 @@ namespace App\Repositories\Posts;
 
 use App\Models\Like;
 use App\Models\Post;
+use App\Models\User;
+use App\Notifications\UserCreatePost;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
 
 class PostRepository implements PostRepositoryInterface
 {
@@ -37,11 +40,19 @@ class PostRepository implements PostRepositoryInterface
             'title' => $request->title,
             'description' => $request->description,
             'user_id' => $this->user->id
-        ]);
+        ])->load('user');
 
         if (!$post) {
             throw new \Exception('Something went wrong');
         }
+
+        $admins = User::whereHas('role', function ($query) {
+            $query->whereHas('permissions', function ($query) {
+                $query->where('title', 'post_check');
+            });
+        })->get();
+
+        Notification::send($admins, new UserCreatePost($post->user->name, $post->id, $post->title));
 
         return $post;
     }
@@ -115,7 +126,7 @@ class PostRepository implements PostRepositoryInterface
 
     public function onePost($postId): object
     {
-        $post = Post::with('notifications')->find($postId);
+        $post = Post::with(['user:id,name', 'notifications'])->find($postId);
 
         return $post;
     }

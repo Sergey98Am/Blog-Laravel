@@ -11,11 +11,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
     use Notifiable;
 
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
-    }
-
     /**
      * The attributes that are mass assignable.
      *
@@ -80,5 +75,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function likes()
     {
         return $this->hasMany(Like::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }
