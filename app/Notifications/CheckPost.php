@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class CheckPost extends Notification
 {
@@ -25,8 +26,7 @@ class CheckPost extends Notification
         $this->post_id = $post_id;
         $this->post_title = $post_title;
         $this->post_checked = $post_checked;
-        $this->checked = $post_checked ? 'post-checked' : 'post-not-checked';
-        $this->url = "post_id/$this->post_id?checked=$this->checked";
+        $this->url = "/post/$this->post_id";
     }
 
     /**
@@ -48,7 +48,8 @@ class CheckPost extends Notification
      */
     public function toArray($notifiable)
     {
-        $url = "/notification/notify_id/$this->id/$this->url";
+        $class_name_to_snake_case = Str::snake(class_basename(__CLASS__));
+        $url = "$this->url/?notify_id=$this->id&notify_type=$class_name_to_snake_case";
 
         return [
             "url" => $url,

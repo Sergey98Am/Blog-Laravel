@@ -7,8 +7,7 @@ use Illuminate\Notifications\DatabaseNotification;
 class Notification extends DatabaseNotification
 {
     protected $hidden = [
-        'id',
-        'for_admin'
+        'id'
     ];
 
     public function user()

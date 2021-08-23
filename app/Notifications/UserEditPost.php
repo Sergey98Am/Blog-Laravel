@@ -6,13 +6,13 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
-class UserCreatePost extends Notification
+class UserEditPost extends Notification
 {
     use Queueable;
 
     public $post_user_name;
     public $post_id;
-    public $post_title;
+    public $old_post_title;
     public $url;
 
     /**
@@ -20,11 +20,11 @@ class UserCreatePost extends Notification
      *
      * @return void
      */
-    public function __construct($post_user_name, $post_id, $post_title)
+    public function __construct($old_post_title, $post_user_name, $post_id)
     {
+        $this->old_post_title = $old_post_title;
         $this->post_user_name = $post_user_name;
         $this->post_id = $post_id;
-        $this->post_title = $post_title;
         $this->url = "/admin/post/$this->post_id";
     }
 
@@ -52,9 +52,8 @@ class UserCreatePost extends Notification
 
         return [
             'id' => $this->post_id,
-            'title' => $this->post_title,
             'url' => $url,
-            "text" => "$this->post_user_name created new post '$this->post_title'",
+            "text" => "$this->post_user_name edited post '$this->old_post_title'",
         ];
     }
 }
