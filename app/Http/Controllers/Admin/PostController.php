@@ -36,51 +36,6 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update(UpdatePostRequest $request, int $postId)
-    {
-        try {
-            $updatedPost = $this->repository->updatePost($request, $postId);
-
-            return response()->json([
-                'updatedPost' => $updatedPost,
-                'message' => 'Post successfully updated'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 400);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function destroy(int $postId)
-    {
-        try {
-            $post = $this->repository->deletePost($postId);
-
-            return response()->json([
-                'deletedPost' => $post,
-                'message' => 'Post successfully deleted'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 400);
-        }
-    }
-
     public function checkPost(Request $request, int $postId)
     {
         try {

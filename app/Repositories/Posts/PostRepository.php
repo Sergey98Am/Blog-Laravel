@@ -6,6 +6,7 @@ use App\Models\Like;
 use App\Models\Post;
 use App\Models\User;
 use App\Notifications\UserCreatePost;
+use App\Notifications\UserEditPost;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
@@ -60,6 +61,7 @@ class PostRepository implements PostRepositoryInterface
     public function updatePost($request, $postId): object
     {
         $post = Post::find($postId);
+        $old_post_title = $post->title;
 
         if (!$post) {
             throw new \Exception("Post doesn't exist");
@@ -79,6 +81,14 @@ class PostRepository implements PostRepositoryInterface
             'checked' => false,
             'edited' => true,
         ]);
+
+        $admins = User::whereHas('role', function ($query) {
+            $query->whereHas('permissions', function ($query) {
+                $query->where('title', 'post_check');
+            });
+        })->get();
+
+        Notification::send($admins, new UserEditPost($old_post_title, $post->user->name, $post->id));
 
         return $post;
     }
