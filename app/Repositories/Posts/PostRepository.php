@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Notifications\UserCreatePost;
 use App\Notifications\UserEditPost;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
@@ -103,12 +104,12 @@ class PostRepository implements PostRepositoryInterface
         return $post;
     }
 
-    public function allPosts(): Collection
+    public function allPosts(): LengthAwarePaginator
     {
         $posts = Post::with([
             'user:id,name',
             'likes',
-        ])->orderBy('id', 'DESC')->where('checked', true)->get();
+        ])->orderBy('id', 'DESC')->where('checked', true)->paginate(10);
 
         return $posts;
     }
