@@ -23,10 +23,9 @@ class PostRepository implements PostRepositoryInterface
         $this->path = public_path() . '/images/';
     }
 
-    public function getMyPosts(): Collection
+    public function getMyPosts(): LengthAwarePaginator
     {
-
-        return Post::orderBy('id', 'DESC')->where('user_id', $this->user->id)->get();
+        return Post::orderBy('id', 'DESC')->where('user_id', $this->user->id)->paginate(10);
     }
 
     public function createPost($request): object
