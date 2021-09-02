@@ -13,7 +13,7 @@ class RoleRepository implements RoleRepositoryInterface
     public function getRoles(): array
     {
         if (Gate::allows('role_access')) {
-            $roles = Role::with('permissions')->orderBy('id', 'DESC')->get();
+            $roles = Role::with('permissions')->orderBy('id', 'DESC')->paginate(9);
             $permissions = Permission::all();
 
             return [
