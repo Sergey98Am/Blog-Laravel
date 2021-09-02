@@ -12,7 +12,7 @@ class UserRepository implements UserRepositoryInterface
     public function getUsers(): array
     {
         if (Gate::allows('user_access')) {
-            $users = User::with('role')->orderBy('id', 'DESC')->get();
+            $users = User::with('role')->orderBy('id', 'DESC')->paginate(9);
             $roles = Role::all();
 
             return [
