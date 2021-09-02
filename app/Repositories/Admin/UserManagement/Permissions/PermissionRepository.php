@@ -3,15 +3,16 @@
 namespace App\Repositories\Admin\UserManagement\Permissions;
 
 use App\Models\Permission;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 
 class PermissionRepository implements PermissionRepositoryInterface
 {
-    public function getPermissions(): Collection
+    public function getPermissions(): LengthAwarePaginator
     {
         if (Gate::allows('permission_access')) {
-            $permissions = Permission::orderBy('id', 'DESC')->get();
+            $permissions = Permission::orderBy('id', 'DESC')->paginate(9);
 
             return $permissions;
         }
