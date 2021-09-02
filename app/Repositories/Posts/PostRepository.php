@@ -25,7 +25,7 @@ class PostRepository implements PostRepositoryInterface
 
     public function getMyPosts(): LengthAwarePaginator
     {
-        return Post::orderBy('id', 'DESC')->where('user_id', $this->user->id)->paginate(10);
+        return Post::orderBy('id', 'DESC')->where('user_id', $this->user->id)->paginate(9);
     }
 
     public function createPost($request): object
@@ -108,7 +108,7 @@ class PostRepository implements PostRepositoryInterface
         $posts = Post::with([
             'user:id,name',
             'likes',
-        ])->orderBy('id', 'DESC')->where('checked', true)->paginate(10);
+        ])->orderBy('id', 'DESC')->where('checked', true)->paginate(9);
 
         return $posts;
     }
