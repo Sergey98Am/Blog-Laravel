@@ -51,10 +51,10 @@ class UserCreatePost extends Notification
         $url = "$this->url/?notify_id=$this->id&notify_type=$class_name_to_snake_case";
 
         return [
-            'id' => $this->post_id,
             'title' => $this->post_title,
             'url' => $url,
             "text" => "$this->post_user_name created new post '$this->post_title'",
+            "post_id" => $this->post_id
         ];
     }
 }

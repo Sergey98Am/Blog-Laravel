@@ -51,9 +51,9 @@ class UserEditPost extends Notification
         $url = "$this->url/?notify_id=$this->id&notify_type=$class_name_to_snake_case";
 
         return [
-            'id' => $this->post_id,
             'url' => $url,
             "text" => "$this->post_user_name edited post '$this->old_post_title'",
+            "post_id" => $this->post_id
         ];
     }
 }

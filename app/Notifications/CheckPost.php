@@ -54,6 +54,7 @@ class CheckPost extends Notification
         return [
             "url" => $url,
             "text" => $this->post_checked ? "Admin approved '$this->post_title' post" : "Admin disapproved '$this->post_title' post",
+            "post_id" => $this->post_id
         ];
     }
 }
