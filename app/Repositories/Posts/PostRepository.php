@@ -136,7 +136,7 @@ class PostRepository implements PostRepositoryInterface
 
     public function onePost($postId): object
     {
-        $post = Post::with(['user:id,name', 'notifications'])->find($postId);
+        $post = Post::with(['user:id,name'])->find($postId);
 
         return $post;
     }
