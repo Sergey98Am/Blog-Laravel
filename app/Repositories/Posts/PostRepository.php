@@ -9,7 +9,6 @@ use App\Notifications\UserCreatePost;
 use App\Notifications\UserEditPost;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
 
 class PostRepository implements PostRepositoryInterface

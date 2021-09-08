@@ -16,6 +16,10 @@ use App\Repositories\Posts\PostRepository;
 use App\Repositories\Posts\PostRepositoryInterface;
 use App\Repositories\Auth\AuthRepositoryInterface;
 use App\Repositories\Auth\AuthRepository;
+use App\Repositories\Comments\CommentRepository;
+use App\Repositories\Comments\CommentRepositoryInterface;
+use App\Repositories\Admin\Comments\AdminCommentRepository;
+use App\Repositories\Admin\Comments\AdminCommentRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -35,6 +39,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
+        $this->app->bind(CommentRepositoryInterface::class, CommentRepository::class);
+        $this->app->bind(AdminCommentRepositoryInterface::class, AdminCommentRepository::class);
     }
 
     /**

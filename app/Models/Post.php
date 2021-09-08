@@ -19,7 +19,6 @@ class Post extends Model
         'user_id'
     ];
 
-
     protected $dates = ['created_at', 'updated_at'];
 
     protected $appends = ['liked_by_auth_user'];
@@ -54,8 +53,13 @@ class Post extends Model
         }
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->where('parent_id', null);
+    }
+
     public function notifications()
     {
-        return $this->hasMany(DatabaseNotification::class)->orderBy('created_at', 'desc');
+        return $this->hasMany(Notification::class)->orderBy('created_at', 'desc');
     }
 }

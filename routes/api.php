@@ -23,6 +23,14 @@ Route::middleware('jwt')->group(function () {
     Route::get('mark-all-as-read', 'NotificationController@markAllAsRead');
     Route::get('mark-as-read/{notificationId}', 'NotificationController@markAsRead');
     Route::post('load-more-notifications', 'NotificationController@loadMoreData');
+    // Comments
+    Route::get('posts/{postId}/comments', 'CommentController@index');
+    Route::post('posts/{postId}/comments', 'CommentController@store');
+    Route::post('posts/{postId}/comments/{commentId}/replies', 'CommentController@reply');
+    Route::put('posts/{postId}/comments/{commentId}', 'CommentController@update');
+    Route::delete('posts/{postId}/comments/{commentId}', 'CommentController@destroy');
+    Route::post('posts/{postId}/load-more-comments', 'CommentController@loadMoreComments');
+    Route::post('posts/{postId}/comments/{commentId}/load-more-replies', 'CommentController@loadMoreReplies');
 
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('permissions', 'UserManagement\PermissionController');
@@ -31,5 +39,8 @@ Route::middleware('jwt')->group(function () {
         Route::get('abilities', 'UserManagement\RoleController@abilities');
         Route::resource('posts', 'PostController');
         Route::put('check-post/{postId}', 'PostController@checkPost');
+        // Comment
+        Route::get('posts/{postId}/comments', 'CommentController@index');
+        Route::delete('posts/{postId}/comments/{commentId}', 'CommentController@destroy');
     });
 });
