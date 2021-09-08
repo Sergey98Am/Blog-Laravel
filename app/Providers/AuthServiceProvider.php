@@ -5,8 +5,8 @@ namespace App\Providers;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use JWTAuth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,7 +28,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        $user = JWTAuth::user();
+        $user = Auth::user();
 
         if ($user) {
             $roles = Role::with('permissions')->get();

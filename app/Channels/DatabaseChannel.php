@@ -22,6 +22,7 @@ class DatabaseChannel extends IlluminateDatabaseChannel
             'type' => get_class($notification),
             'user_id' => $notifiable->id,
             'post_id' => $notification->post_id ?? null,
+            'comment_id' => $notification->comment_id ?? null,
             'data' => $this->getData($notifiable, $notification),
             'read_at' => null
         ];
