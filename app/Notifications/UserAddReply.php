@@ -13,7 +13,8 @@ class UserAddReply extends Notification
     use Queueable;
 
     public $comment_user_name;
-    public $comment_post_id;
+    public $post_id;
+    public $parent_comment_post_title;
     public $comment_parent_id;
     public $comment_id;
     public $parent_comment_text;
@@ -24,10 +25,11 @@ class UserAddReply extends Notification
      *
      * @return void
      */
-    public function __construct($comment_user_name, $comment_post_id, $comment_parent_id, $comment_id, $parent_comment_text, $url)
+    public function __construct($comment_user_name, $post_id, $parent_comment_post_title, $comment_parent_id, $comment_id, $parent_comment_text, $url)
     {
         $this->comment_user_name = $comment_user_name;
-        $this->comment_post_id = $comment_post_id;
+        $this->post_id = $post_id;
+        $this->parent_comment_post_title = $parent_comment_post_title;
         $this->comment_parent_id = $comment_parent_id;
         $this->comment_id = $comment_id;
         $this->parent_comment_text = $parent_comment_text;
@@ -61,7 +63,8 @@ class UserAddReply extends Notification
         return [
             'parent_comment_text' => $this->parent_comment_text,
             'url' => $url,
-            "text" => "$this->comment_user_name replied to the '$truncated_comment_text.$multi_point' comment",
+            "text" => "$this->comment_user_name replied to the '$truncated_comment_text.$multi_point' comment on '$this->parent_comment_post_title' post",
+            "post_id" => $this->post_id,
             "comment_id" => $this->comment_id
         ];
     }

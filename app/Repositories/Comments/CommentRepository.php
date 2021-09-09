@@ -59,14 +59,22 @@ class CommentRepository implements CommentRepositoryInterface
         $parameters = [
             0 => $comment->user->name,
             1 => $comment->post->id,
-            2 => $comment->id,
-            3 => $comment->comment,
-            4 => ''
+            2 => $comment->post->title,
+            3 => $comment->id,
+            4 => $comment->comment,
+            5 => ''
         ];
         $commentPostId = $comment->post->id;
         $url = "/admin/post/$commentPostId";
-        $parameters[4] = $url;
+        $parameters[5] = $url;
         Notification::send($this->admins, new UserAddComment(...$parameters));
+
+        $userOfCommentPost = $comment->post->user()->where('id', '!=', $this->user->id)->first();
+        if ($userOfCommentPost) {
+            $url = "/post/$commentPostId";
+            $parameters[5] = $url;
+            $userOfCommentPost->notify(new UserAddComment(...$parameters));
+        }
 
         $comment->limitedReplies = $comment->replies()->with('user')->limit(10)->get();
 
@@ -91,20 +99,24 @@ class CommentRepository implements CommentRepositoryInterface
         $parameters = [
             0 => $comment->user->name,
             1 => $comment->post->id,
-            2 => $comment->parent_id,
-            3 => $comment->id,
-            4 => $parentComment->comment,
-            5 => ''
+            2 => $parentComment->post->title,
+            3 => $comment->parent_id,
+            4 => $comment->id,
+            5 => $parentComment->comment,
+            6 => ''
         ];
 
-        $commentPostId = $comment->post->id;
-        $url = "/admin/post/$commentPostId";
-        $parameters[5] = $url;
+        $parentCommentPostId = $parentComment->post->id;
+        $url = "/admin/post/$parentCommentPostId";
+        $parameters[6] = $url;
         Notification::send($this->admins, new UserAddReply(...$parameters));
 
-        $url = "/post/$commentPostId";
-        $parameters[5] = $url;
-        $parentComment->user->notify(new UserAddReply(...$parameters));
+        $userOfParentCommentPost = $parentComment->post->user()->where('id', '!=', $this->user->id)->first();
+        $userOfParentComment = $parentComment->user()->where('id', '!=', $this->user->id)->first();
+        $users = User::whereIn('id', [$userOfParentCommentPost['id'], $userOfParentComment['id']])->get();
+        $url = "/post/$parentCommentPostId";
+        $parameters[6] = $url;
+        Notification::send($users, new UserAddReply(...$parameters));
 
         return $comment->load('user');
     }
