@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Notification;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,15 @@ class DeleteOldNotifications extends Command
      */
     public function handle()
     {
-        DB::table('notifications')->where('created_at', '<', Carbon::now()->subWeeks(4))->delete();
+        $users = User::all();
+        foreach ($users as $user) {
+            $userNotifications = $user->notifications(); // Order by 'id' 'desc'
+            $notificationsCount = $userNotifications->count();
+            $skip = 150;
+            if ($notificationsCount > $skip) {
+                $limit = $notificationsCount - $skip;
+                $userNotifications->skip($skip)->take($limit)->delete();
+            }
+        }
     }
 }
