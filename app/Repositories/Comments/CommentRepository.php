@@ -117,6 +117,13 @@ class CommentRepository implements CommentRepositoryInterface
         $url = "/post/$parentCommentPostId";
         $parameters[6] = $url;
         Notification::send($users, new UserAddReply(...$parameters));
+        $replies = $parentComment->replies;
+        foreach ($replies as $reply) {
+            $userOfReply = $reply->user;
+            if ($userOfReply->id !== $this->user->id) {
+                Notification::send($userOfReply, new UserAddReply(...$parameters));
+            }
+        }
 
         return $comment->load('user');
     }
