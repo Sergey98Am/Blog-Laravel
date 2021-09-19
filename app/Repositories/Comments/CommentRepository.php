@@ -46,7 +46,7 @@ class CommentRepository implements CommentRepositoryInterface
 
     public function createComment($request, $postId): object
     {
-        $comment = Post::find($postId)->comments()->create([
+        $comment = Comment::create([
             'comment' => $request->comment,
             'post_id' => $postId,
             'user_id' => $this->user->id
@@ -81,11 +81,17 @@ class CommentRepository implements CommentRepositoryInterface
         return $comment->load('user');
     }
 
-    public function createReply($request, $postId, $commentId): object
+    public function createReply($request, $postId, $parentCommentId)
     {
-        $comment = Comment::find($commentId)->create([
+        $parentComment = Comment::find($parentCommentId);
+
+        if (!$parentComment) {
+            throw new \Exception('Something went wrong');
+        }
+
+        $comment = Comment::create([
             'comment' => $request->comment,
-            'parent_id' => $commentId,
+            'parent_id' => $parentCommentId,
             'post_id' => $postId,
             'user_id' => $this->user->id,
         ]);
@@ -94,8 +100,6 @@ class CommentRepository implements CommentRepositoryInterface
             throw new \Exception('Something went wrong');
         }
 
-        $commentParentId = $comment->parent_id;
-        $parentComment = Comment::find($commentParentId);
         $parameters = [
             0 => $comment->user->name,
             1 => $comment->post->id,
@@ -111,24 +115,23 @@ class CommentRepository implements CommentRepositoryInterface
         $parameters[6] = $url;
         Notification::send($this->admins, new UserAddReply(...$parameters));
 
-        $userOfParentCommentPost = $parentComment->post->user()->where('id', '!=', $this->user->id)->first();
-        $userOfParentComment = $parentComment->user()->where('id', '!=', $this->user->id)->first();
-        $users = User::whereIn('id', [$userOfParentCommentPost['id'], $userOfParentComment['id']])->get();
+        $notLoggedInUserOfParentCommentPost = $parentComment->post->user()->where('id', '!=', $this->user->id)->first();
+        $notLoggedInUserOfParentComment = $parentComment->user()->where('id', '!=', $this->user->id)->first();
+        $users = User::whereIn('id', [$notLoggedInUserOfParentCommentPost['id'], $notLoggedInUserOfParentComment['id']])->get();
         $url = "/post/$parentCommentPostId";
         $parameters[6] = $url;
         Notification::send($users, new UserAddReply(...$parameters));
-        $replies = $parentComment->replies;
-        foreach ($replies as $reply) {
-            $userOfReply = $reply->user;
-            if ($userOfReply->id !== $this->user->id) {
-                Notification::send($userOfReply, new UserAddReply(...$parameters));
-            }
-        }
+
+        $userOfParentCommentPost = $parentComment->post->user;
+        $userOfParentComment = $parentComment->user;
+        $usersOfReplies = $parentComment->replies()->with('user')->get()->unique('user.id')->pluck('user');
+        $usersOfRepliesFiltered = $usersOfReplies->whereNotIn('id', [$this->user->id, $userOfParentCommentPost->id, $userOfParentComment->id]);
+        Notification::send($usersOfRepliesFiltered, new UserAddReply(...$parameters));
 
         return $comment->load('user');
     }
 
-    public function updateComment($request, $postId, $commentId)
+    public function updateComment($request, $postId, $commentId): object
     {
         $comment = Comment::find($commentId);
 
@@ -174,9 +177,9 @@ class CommentRepository implements CommentRepositoryInterface
         return $moreComments ?? null;
     }
 
-    public function loadReplies($request, $postId, $commentId)
+    public function loadReplies($request, $postId, $parentCommentId)
     {
-        $comment = Comment::find($commentId);
+        $comment = Comment::find($parentCommentId);
 
         if ($comment) {
             $moreReplies = $comment->replies()->with('user')->where('id', '>', $request->last_id)->limit(10)->get();

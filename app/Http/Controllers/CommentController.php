@@ -50,10 +50,10 @@ class CommentController extends Controller
         }
     }
 
-    public function reply(CommentRequest $request, $postId, $commentId)
+    public function reply(CommentRequest $request, $postId, $parentCommentId)
     {
         try {
-            $comment = $this->repository->createReply($request, $postId, $commentId);
+            $comment = $this->repository->createReply($request, $postId, $parentCommentId);
 
             return response()->json([
                 'comment' => $comment,
@@ -113,10 +113,10 @@ class CommentController extends Controller
         }
     }
 
-    public function loadMoreReplies(Request $request, $postId, $commentId)
+    public function loadMoreReplies(Request $request, $postId, $parentCommentId)
     {
         try {
-            $moreReplies = $this->repository->loadReplies($request, $postId, $commentId);
+            $moreReplies = $this->repository->loadReplies($request, $postId, $parentCommentId);
 
             return response()->json([
                 'replies' => $moreReplies

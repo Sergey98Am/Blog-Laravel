@@ -8,7 +8,7 @@ interface CommentRepositoryInterface
 
     public function createComment($request, $postId);
 
-    public function createReply($request, $postId, $commentId);
+    public function createReply($request, $postId, $parentCommentId);
 
     public function updateComment($request, $postId, $commentId);
 
@@ -16,5 +16,5 @@ interface CommentRepositoryInterface
 
     public function loadComments($request, $postId);
 
-    public function loadReplies($request, $postId, $commentId);
+    public function loadReplies($request, $postId, $parentCommentId);
 }

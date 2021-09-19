@@ -26,11 +26,11 @@ Route::middleware('jwt')->group(function () {
     // Comments
     Route::get('posts/{postId}/comments', 'CommentController@index');
     Route::post('posts/{postId}/comments', 'CommentController@store');
-    Route::post('posts/{postId}/comments/{commentId}/replies', 'CommentController@reply');
+    Route::post('posts/{postId}/comments/{parentCommentId}/replies', 'CommentController@reply');
     Route::put('posts/{postId}/comments/{commentId}', 'CommentController@update');
     Route::delete('posts/{postId}/comments/{commentId}', 'CommentController@destroy');
     Route::post('posts/{postId}/load-more-comments', 'CommentController@loadMoreComments');
-    Route::post('posts/{postId}/comments/{commentId}/load-more-replies', 'CommentController@loadMoreReplies');
+    Route::post('posts/{postId}/comments/{parentCommentId}/load-more-replies', 'CommentController@loadMoreReplies');
 
     Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::resource('permissions', 'UserManagement\PermissionController');
